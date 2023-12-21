@@ -1,4 +1,4 @@
-package init
+package db
 
 import (
 	"github.com/CloudStriver/go-pkg/utils/gormlogger"
