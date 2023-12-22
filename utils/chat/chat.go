@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/carlmjohnson/requests"
+	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/stores/redis"
+	"time"
 )
 
 const UserPlatformID = 5
@@ -29,7 +30,7 @@ type GetTokenResp struct {
 	} `json:"data"`
 }
 
-func GetToken(Redis *redis.Redis, UserID, Secret, AdminUserID string) (string, error) {
+func GetToken(ctx context.Context, Redis *redis.Client, UserID, Secret, AdminUserID string) (string, error) {
 	GetTokenReq := &GetTokenReq{
 		Secret:     Secret,
 		PlatformID: UserPlatformID,
@@ -41,7 +42,7 @@ func GetToken(Redis *redis.Redis, UserID, Secret, AdminUserID string) (string, e
 	var GetTokenResp GetTokenResp
 
 	if UserID == AdminUserID {
-		Token, err := Redis.Get(fmt.Sprintf("%s:%s", ChatToken, UserID))
+		Token, err := Redis.Get(ctx, fmt.Sprintf("%s:%s", ChatToken, UserID)).Result()
 		if err != nil {
 			logx.Errorf("Redis获取缓存异常[%v]\n", err)
 		}
@@ -54,7 +55,7 @@ func GetToken(Redis *redis.Redis, UserID, Secret, AdminUserID string) (string, e
 				logx.Errorf("requests异常[%v]\n", err)
 				return "", err
 			}
-			err = Redis.Setex(fmt.Sprintf("http://%s/auth/user_token", ChatApiUrl), GetTokenResp.Data.Token, GetTokenResp.Data.ExpireTimeSeconds)
+			err = Redis.SetEx(ctx, fmt.Sprintf("http://%s/auth/user_token", ChatApiUrl), GetTokenResp.Data.Token, time.Duration(GetTokenResp.Data.ExpireTimeSeconds)).Err()
 			if err != nil {
 				logx.Errorf("Redis设置缓存异常[%v]\n", err)
 			}
