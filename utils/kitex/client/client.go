@@ -12,8 +12,8 @@ import (
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 
-	"github.com/xh-polaris/gopkg/kitex/middleware"
-	"github.com/xh-polaris/gopkg/util/log"
+	"github.com/CloudStriver/go-pkg/utils/kitex/middleware"
+	"github.com/CloudStriver/go-pkg/utils/log"
 )
 
 const (
