@@ -1,14 +1,14 @@
 package pconvertor
 
 import (
-	"encoding/json"
 	"github.com/CloudStriver/go-pkg/utils/pagination"
 	"github.com/CloudStriver/service-idl-gen-go/kitex_gen/basic"
+	"github.com/bytedance/sonic"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
 func StructToJsonString(a any) string {
-	data, err := json.Marshal(a)
+	data, err := sonic.Marshal(a)
 	if err != nil {
 		logx.Errorf("Json Marshal异常[%v]\n", err)
 		return ""
