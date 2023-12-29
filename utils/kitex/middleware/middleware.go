@@ -5,8 +5,8 @@ import (
 
 	"github.com/cloudwego/kitex/pkg/endpoint"
 
-	"github.com/CloudStriver/go-pkg/utils"
-	"github.com/CloudStriver/go-pkg/utils/log"
+	"github.com/CloudStriver/go-pkg/utils/util"
+	"github.com/CloudStriver/go-pkg/utils/util/log"
 )
 
 var (
@@ -14,7 +14,7 @@ var (
 		return func(handler endpoint.Endpoint) endpoint.Endpoint {
 			return func(ctx context.Context, req, resp interface{}) error {
 				err := handler(ctx, req, resp)
-				log.CtxInfo(ctx, "[%s RPC Request] req=%s, resp=%s, err=%v", name, utils.JSONF(req), utils.JSONF(resp), err)
+				log.CtxInfo(ctx, "[%s RPC Request] req=%s, resp=%s, err=%v", name, util.JSONF(req), util.JSONF(resp), err)
 				return err
 			}
 		}

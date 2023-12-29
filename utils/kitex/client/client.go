@@ -13,7 +13,7 @@ import (
 	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 
 	"github.com/CloudStriver/go-pkg/utils/kitex/middleware"
-	"github.com/CloudStriver/go-pkg/utils/log"
+	"github.com/CloudStriver/go-pkg/utils/util/log"
 )
 
 const (

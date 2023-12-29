@@ -1,9 +1,9 @@
-package utils
+package util
 
 import (
 	"github.com/cloudwego/hertz/pkg/common/json"
 
-	"github.com/CloudStriver/go-pkg/utils/log"
+	"github.com/CloudStriver/go-pkg/utils/util/log"
 )
 
 func JSONF(v any) string {

@@ -17,6 +17,9 @@ func StructToJsonString(a any) string {
 }
 
 func PaginationOptionsToModelPaginationOptions(options *basic.PaginationOptions) *pagination.PaginationOptions {
+	if options == nil {
+		return &pagination.PaginationOptions{}
+	}
 	return &pagination.PaginationOptions{
 		Limit:     options.Limit,
 		Offset:    options.Offset,
