@@ -22,9 +22,9 @@ const (
 	magicEndpoint = "magic-host:magic-port"
 )
 
-func NewClient[C any](fromName, toName string, fn func(fromName string, opts ...client.Option) (C, error), directEndpoints ...string) C {
+func NewClient[C any](fromName, toName string, r discovery.Resolver, fn func(fromName string, opts ...client.Option) (C, error), directEndpoints ...string) C {
 	cli, err := fn(
-		fromName,
+		toName,
 		client.WithHostPorts(func() []string {
 			if len(directEndpoints) != 0 {
 				return directEndpoints
@@ -35,6 +35,7 @@ func NewClient[C any](fromName, toName string, fn func(fromName string, opts ...
 		client.WithClientBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: fromName}),
 		client.WithInstanceMW(middleware.LogMiddleware(toName)),
 		client.WithLoadBalancer(&LoadBalancer{ServiceName: strings.ReplaceAll(toName, ".", "-")}),
+		client.WithResolver(r),
 	)
 	if err != nil {
 		log.Error("[NewClient], err=%v", err)
