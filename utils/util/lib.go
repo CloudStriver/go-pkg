@@ -3,9 +3,9 @@ package util
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"github.com/cloudwego/hertz/pkg/common/json"
-
+	"github.com/CloudStriver/go-pkg/utils/pconvertor"
 	"github.com/CloudStriver/go-pkg/utils/util/log"
+	"github.com/cloudwego/hertz/pkg/common/json"
 )
 
 func JSONF(v any) string {
@@ -17,6 +17,6 @@ func JSONF(v any) string {
 }
 
 func MD5(s string) string {
-	sum := md5.Sum([]byte(s))
+	sum := md5.Sum(pconvertor.String2Bytes(s))
 	return hex.EncodeToString(sum[:])
 }

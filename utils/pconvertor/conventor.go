@@ -1,27 +1,42 @@
 package pconvertor
 
 import (
-	"context"
 	"github.com/CloudStriver/go-pkg/utils/pagination"
 	"github.com/CloudStriver/go-pkg/utils/util/log"
 	"github.com/CloudStriver/service-idl-gen-go/kitex_gen/basic"
 	"github.com/bytedance/sonic"
+	"reflect"
+	"unsafe"
 )
 
-func StructToJsonString(ctx context.Context, a any) string {
+func StructToJsonString(a any) string {
 	data, err := sonic.Marshal(a)
 	if err != nil {
-		log.CtxError(ctx, "sonic Marshal异常[%v]\n", err)
+		log.Error("sonic Marshal异常[%v]\n", err)
 		return ""
 	}
-	return string(data)
+	return Bytes2String(data)
 }
 
-func JsonStringToStruct(ctx context.Context, a any, data []byte) {
+func JsonStringToStruct(a any, data []byte) {
 	err := sonic.Unmarshal(data, a)
 	if err != nil {
-		log.CtxError(ctx, "sonic Unmarshal异常[%v]\n", err)
+		log.Error("sonic Unmarshal异常[%v]\n", err)
 	}
+}
+
+func String2Bytes(s string) []byte {
+	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	bh := reflect.SliceHeader{
+		Data: sh.Data,
+		Len:  sh.Len,
+		Cap:  sh.Len,
+	}
+	return *(*[]byte)(unsafe.Pointer(&bh))
+}
+
+func Bytes2String(b []byte) string {
+	return *(*string)(unsafe.Pointer(&b))
 }
 
 func PaginationOptionsToModelPaginationOptions(options *basic.PaginationOptions) *pagination.PaginationOptions {
