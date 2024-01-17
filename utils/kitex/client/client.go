@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	prometheus "github.com/kitex-contrib/monitor-prometheus"
 	"net"
 	"strings"
 
@@ -22,20 +23,19 @@ const (
 	magicEndpoint = "magic-host:magic-port"
 )
 
-func NewClient[C any](fromName, toName string, r discovery.Resolver, fn func(fromName string, opts ...client.Option) (C, error), directEndpoints ...string) C {
+var tracer = prometheus.NewClientTracer(":9091", "/client/metrics")
+
+func NewClient[C any](fromName, toName string, fn func(fromName string, opts ...client.Option) (C, error), directEndpoints ...string) C {
 	cli, err := fn(
-		toName,
+		fromName,
 		client.WithHostPorts(func() []string {
-			if len(directEndpoints) != 0 {
-				return directEndpoints
-			}
 			return []string{magicEndpoint}
 		}()...),
 		client.WithSuite(tracing.NewClientSuite()),
+		client.WithTracer(tracer),
 		client.WithClientBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: fromName}),
 		client.WithInstanceMW(middleware.LogMiddleware(toName)),
 		client.WithLoadBalancer(&LoadBalancer{ServiceName: strings.ReplaceAll(toName, ".", "-")}),
-		client.WithResolver(r),
 	)
 	if err != nil {
 		log.Error("[NewClient], err=%v", err)
