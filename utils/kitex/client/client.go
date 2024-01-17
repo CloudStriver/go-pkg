@@ -25,7 +25,7 @@ const (
 
 var tracer = prometheus.NewClientTracer(":9091", "/client/metrics")
 
-func NewClient[C any](fromName, toName string, fn func(fromName string, opts ...client.Option) (C, error), directEndpoints ...string) C {
+func NewClient[C any](fromName, toName string, fn func(fromName string, opts ...client.Option) (C, error)) C {
 	cli, err := fn(
 		fromName,
 		client.WithHostPorts(func() []string {
