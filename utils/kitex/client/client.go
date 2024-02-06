@@ -68,7 +68,9 @@ func (p *Picker) Next(ctx context.Context, _ interface{}) discovery.Instance {
 		return p.Instances[0]
 	}
 
-	var host = p.ServiceName + ".cloudmind-test"
+	var host = p.ServiceName + ".cloudmind"
+
+	// 选择基准环境
 	env, ok := metainfo.GetPersistentValue(ctx, EnvHeader)
 	if !ok {
 		var md metadata.MD
@@ -80,6 +82,7 @@ func (p *Picker) Next(ctx context.Context, _ interface{}) discovery.Instance {
 	if ok && env == "test" {
 		host += "-test"
 	}
+
 	// 检查泳道是否部署该服务
 	lane, ok := metainfo.GetPersistentValue(ctx, LaneHeader)
 	if !ok {
