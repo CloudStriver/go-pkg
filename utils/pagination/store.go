@@ -3,11 +3,10 @@ package pagination
 import (
 	"context"
 	"encoding/json"
-	"reflect"
-	"time"
-
 	"github.com/jinzhu/copier"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"reflect"
+	"time"
 )
 
 const (
@@ -24,10 +23,28 @@ var copierOpt = &copier.Option{Converters: []copier.TypeConverter{{
 	},
 }}}
 
+var copierTimeOpt = &copier.Option{Converters: []copier.TypeConverter{{
+	SrcType: time.Time{},
+	DstType: time.Time{},
+	Fn: func(src interface{}) (interface{}, error) {
+		return src.(time.Time), nil
+	},
+}}}
+
+var copierStringOpt = &copier.Option{Converters: []copier.TypeConverter{{
+	SrcType: copier.String,
+	DstType: copier.String,
+	Fn: func(src interface{}) (interface{}, error) {
+		return src.(string), nil
+	},
+}}}
+
 type Store interface {
 	GetCursor() any
 	LoadCursor(ctx context.Context, lastToken string, backward bool) error
-	StoreCursor(ctx context.Context, lastToken *string, first, last any) (*string, error)
+	StoreCursor(_ context.Context, lastToken *string, first, last any) (*string, error)
+	StoreStringCursor(_ context.Context, lastToken *string, first, last any) (*string, error)
+	StoreTimeCursor(_ context.Context, lastToken *string, first, last any) (*string, error)
 }
 
 type RawStore struct {
@@ -75,6 +92,54 @@ func (s *RawStore) StoreCursor(_ context.Context, lastToken *string, first, last
 	}
 	back := reflect.New(s.cursorType).Interface()
 	err = copier.CopyWithOption(back, last, *copierOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	bytes, err := json.Marshal([2]any{front, back})
+	if err != nil {
+		return nil, err
+	}
+	if lastToken == nil {
+		lastToken = new(string)
+	}
+	*lastToken = string(bytes)
+	return lastToken, nil
+}
+
+// StoreCursor 生成游标
+func (s *RawStore) StoreStringCursor(_ context.Context, lastToken *string, first, last any) (*string, error) {
+	front := reflect.New(s.cursorType).Interface()
+	err := copier.CopyWithOption(front, first, *copierStringOpt)
+	if err != nil {
+		return nil, err
+	}
+	back := reflect.New(s.cursorType).Interface()
+	err = copier.CopyWithOption(back, last, *copierStringOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	bytes, err := json.Marshal([2]any{front, back})
+	if err != nil {
+		return nil, err
+	}
+	if lastToken == nil {
+		lastToken = new(string)
+	}
+	*lastToken = string(bytes)
+	return lastToken, nil
+}
+
+// StoreCursor 生成游标
+func (s *RawStore) StoreTimeCursor(_ context.Context, lastToken *string, first, last any) (*string, error) {
+	front := reflect.New(s.cursorType).Interface()
+	err := copier.CopyWithOption(front, first, *copierTimeOpt)
+	if err != nil {
+		return nil, err
+	}
+	back := reflect.New(s.cursorType).Interface()
+	err = copier.CopyWithOption(back, last, *copierTimeOpt)
 	if err != nil {
 		return nil, err
 	}
