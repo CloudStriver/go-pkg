@@ -44,3 +44,8 @@ func (p *EsPaginator) StoreCursor(ctx context.Context, first, last any) error {
 	p.opts.LastToken = token
 	return err
 }
+func (p *EsPaginator) StoreStringCursor(ctx context.Context, first, last any) error {
+	token, err := p.store.StoreStringCursor(ctx, p.opts.LastToken, first, last)
+	p.opts.LastToken = token
+	return err
+}

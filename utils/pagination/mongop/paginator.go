@@ -2,9 +2,7 @@ package mongop
 
 import (
 	"context"
-
 	"github.com/CloudStriver/go-pkg/utils/pagination"
-
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -45,3 +43,19 @@ func (p *MongoPaginator) StoreCursor(ctx context.Context, first, last any) error
 	p.opts.LastToken = token
 	return err
 }
+
+func (p *MongoPaginator) StoreStringCursor(ctx context.Context, first, last any) error {
+	token, err := p.store.StoreStringCursor(ctx, p.opts.LastToken, first, last)
+	p.opts.LastToken = token
+	return err
+}
+func (p *MongoPaginator) StoreTimeCursor(ctx context.Context, first, last any) error {
+	token, err := p.store.StoreTimeCursor(ctx, p.opts.LastToken, first, last)
+	p.opts.LastToken = token
+	return err
+}
+
+//func (p *MongoPaginator) check(ctx context.Context, first, last *file.File, sorter mongop.MongoCursor) error {
+
+//	return nil
+//}
